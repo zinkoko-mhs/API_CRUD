@@ -3,6 +3,9 @@
     public class GetDepartmentRespond
     {
         public List<GetDepartmentItem> Items { get; set; }
+        public int TotalItems { get; set; }
+        public int PageItems { get; set; }
+        public int PageNumber { get; set; }
     }
 
     public class GetDepartmentItem

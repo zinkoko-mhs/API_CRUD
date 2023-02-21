@@ -1,6 +1,7 @@
 ﻿using CRUD_API_Training.Context;
 using CRUD_API_Training.Dtos;
 using CRUD_API_Training.Dtos.Department;
+using CRUD_API_Training.Dtos.Employee;
 using CRUD_API_Training.Interfaces;
 using CRUD_API_Training.Models;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,13 @@ namespace CRUD_API_Training.Repo
             _context = context;
         }
 
-        public async Task<GetDepartmentRespond> GetDepartments()
+        public async Task<GetDepartmentRespond> GetDepartments(Pagination req)
         {
             try
             {
+                int totalItems = await _context.Departments.Where(x=>
+                                x.DepartmentID !=0 && x.IsActive == true).CountAsync();
+
                 var departments = await _context.Departments.Where(x =>
                             x.DepartmentID != 0 && x.IsActive == true).Select(x=>
                             new GetDepartmentItem
@@ -33,14 +37,61 @@ namespace CRUD_API_Training.Repo
                                 Updateddate = x.Updateddate,
                                 Updatedby = x.Updatedby,
                                 IsActive = x.IsActive
-                            })
-                            .ToListAsync();
+                            }).Skip((req.PageNumber-1)*req.PageSize).Take(req.PageSize).ToListAsync();
+
+                int pageItems = departments.Count();
+                
 
                 return new GetDepartmentRespond
                 {
-                    Items = departments
+                    Items = departments,
+                    TotalItems = totalItems,
+                    PageItems = pageItems,
+                    PageNumber= req.PageNumber
                 };
 
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<GetEmployeeRespond> GetEmployeesByDepartment(GetEmployeesRequest req)
+        {
+            try
+            {
+                int totalItems = await _context.Employees.Where(x =>
+                                x.Department == req.filter.Department && x.IsActive == true).CountAsync();
+                var employees = await _context.Employees.Where(x =>
+                                x.Department == req.filter.Department && x.IsActive == true).Select(x =>
+                                new GetEmployeeItem
+                                {
+                                    EmployeeID = x.EmployeeID,
+                                    Name = x.Name,
+                                    DateOfBirth= x.DateOfBirth,
+                                    NRC= x.NRC,
+                                    Email= x.Email,
+                                    Phone= x.Phone,
+                                    Address= x.Address,
+                                    Salary= x.Salary,
+                                    Department = x.Department,
+                                    Createddate = x.Createddate,
+                                    Createdby  = x.Createdby,
+                                    Updatedby= x.Updatedby,
+                                    Updateddate = x.Updateddate,
+                                    IsActive = x.IsActive,
+                                }).Skip((req.PageNumber-1)*req.PageSize).Take(req.PageSize).ToListAsync();
+
+                int pageItems = employees.Count();
+
+                return new GetEmployeeRespond 
+                { 
+                    Items = employees,
+                    TotalItems= totalItems,
+                    PageItems= pageItems,
+                    PageNumber =req.PageNumber
+                };
             }
             catch(Exception e)
             {
@@ -143,6 +194,10 @@ namespace CRUD_API_Training.Repo
                     department.Updateddate = DateTime.Now;
                     department.Updatedby = "Admin";
                     department.IsActive = false;
+
+                    /*var employees = await _context.Employees.Where(x=>
+                                    x.Department == department.Name).Select(x=>)*/
+
 
                     await _context.SaveChangesAsync();
 

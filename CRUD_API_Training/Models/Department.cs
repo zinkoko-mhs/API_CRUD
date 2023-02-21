@@ -11,6 +11,5 @@
         public DateTime? Updateddate { get; set; }
         public string? Updatedby { get; set; }
         public bool IsActive { get; set; }
-
     }
 }

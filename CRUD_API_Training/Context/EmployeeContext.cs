@@ -15,5 +15,10 @@ namespace CRUD_API_Training.Context
 
         public virtual DbSet<Employee> Employees { get; set; }
         public virtual DbSet<Department> Departments { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Promotion> Promotions { get; set; }
+        public virtual DbSet<IsFavourited> IsFavourited { get; set; }
+        public virtual DbSet<Images> Images { get; set; }
     }
 }
